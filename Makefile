@@ -29,13 +29,12 @@
 #                                                                            #
 ##############################################################################
 
-# MCU_TARGET = atmega168
-# MCU_TARGET = atmega328p
-MCU_TARGET = atmega644p
+#MCU_TARGET = atmega168
+MCU_TARGET = atmega328p
+# MCU_TARGET = atmega644p
 # MCU_TARGET = atmega1280
 # MCU_TARGET = atmega2560
 # MCU_TARGET = at90usb1287
-# MCU_TARGET = atmega32u4
 
 # CPU clock rate
 F_CPU = 16000000L
@@ -63,28 +62,15 @@ AVRDUDECONF = /etc/avrdude.conf
 PROGPORT = /dev/arduino
 # PROGPORT = /dev/ttyUSB0
 
-##############################################################################
-#                                                                            #
-# This depends on the bootloader (or programmer) in use.                     #
-# Examples:                                                                  #
-#                                                                            #
-# Arduino Diecimilia with genuine bootloader:        19200                   #
-# Sanguino bootloader:                               57600                   #
-# Gen7 bootloader:                                  115200                   #
-#                                                                            #
-# Set PROGBAUD to 0 (Zero) for programmers.                                  #
-#                                                                            #
-##############################################################################
+# atmega168
+#PROGBAUD = 19200
+# atmega328p, 644p, 1280
+PROGBAUD = 57600
+# atmega 2560
+# PROGBAUD = 115200
 
-PROGBAUD = 115200
-
-##############################################################################
-#                                                                            #
-# Firmware upload device type. Typically stk500 or stk500v2.                 #
-#                                                                            #
-##############################################################################
-
-PROGID = stk500v2
+# at least mega2560 needs stk500v2
+PROGID = arduino
 
 ##############################################################################
 #                                                                            #
@@ -94,10 +80,7 @@ PROGID = stk500v2
 
 PROGRAM = mendel
 
-SOURCES  = $(PROGRAM).c gcode_parse.c gcode_process.c dda.c dda_maths.c
-SOURCES += dda_queue.c timer.c temp.c sermsg.c watchdog.c debug.c sersendf.c
-SOURCES += heater.c analog.c intercom.c pinio.c clock.c home.c crc.c delay.c
-SOURCES += serial.c usb_serial.c
+SOURCES = $(PROGRAM).c dda.c gcode_parse.c gcode_process.c timer.c temp.c sermsg.c dda_queue.c watchdog.c debug.c sersendf.c heater.c analog.c intercom.c pinio.c clock.c home.c crc.c delay.c
 
 ARCH = avr-
 CC = $(ARCH)gcc
@@ -106,23 +89,24 @@ OBJCOPY = $(ARCH)objcopy
 
 OPTIMIZE = -Os -ffunction-sections -finline-functions-called-once -mcall-prologues
 # OPTIMIZE = -O0
-CFLAGS = -g -Wall -Wstrict-prototypes $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS) -std=gnu99 -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -save-temps -Winline
-CFLAGS += -fno-move-loop-invariants
-CFLAGS += -fno-tree-scev-cprop
+CFLAGS = -g -Wall -Wstrict-prototypes $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS) -std=gnu99 -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -save-temps
 LDFLAGS = -Wl,--as-needed -Wl,--gc-sections
 LIBS = -lm
 LIBDEPS =
 SUBDIRS =
 
-ifeq ($(PROGBAUD),0)
-PROGBAUD_FLAG =
+ifneq (,$(findstring usb,$(MCU_TARGET)))
+LDFLAGS += -Llufa_serial
+LIBS += -llufa_serial
+SUBDIRS += lufa_serial
+LIBDEPS += lufa_serial/liblufa_serial.a
 else
-PROGBAUD_FLAG = -b$(PROGBAUD)
+SOURCES += serial.c
 endif
 
 OBJ = $(patsubst %.c,%.o,${SOURCES})
 
-.PHONY: all program clean size subdirs doc functionsbysize depend
+.PHONY: all program clean size subdirs program-fuses doc functionsbysize
 .PRECIOUS: %.o %.elf
 
 all: config.h subdirs $(PROGRAM).hex $(PROGRAM).lst $(PROGRAM).sym size
@@ -138,11 +122,19 @@ program: $(PROGRAM).hex config.h
 	stty $(PROGBAUD) raw ignbrk hup < $(PROGPORT)
 	@sleep 0.1
 	@stty $(PROGBAUD) raw ignbrk hup < $(PROGPORT)
-	$(AVRDUDE) -c$(PROGID) $(PROGBAUD_FLAG) -p$(MCU_TARGET) -P$(PROGPORT) -C$(AVRDUDECONF) -U flash:w:$^
+	$(AVRDUDE) -c$(PROGID) -b$(PROGBAUD) -p$(MCU_TARGET) -P$(PROGPORT) -C$(AVRDUDECONF) -U flash:w:$^
 	stty 115200 raw ignbrk -hup -echo ixoff < $(PROGPORT)
 
+program-fuses:
+	avr-objdump -s -j .fuse mendel.o | perl -ne '/\s0000\s([0-9a-f]{2})/ && print "$$1\n"' > lfuse
+	avr-objdump -s -j .fuse mendel.o | perl -ne '/\s0000\s..([0-9a-f]{2})/ && print "$$1\n"' > hfuse
+	avr-objdump -s -j .fuse mendel.o | perl -ne '/\s0000\s....([0-9a-f]{2})/ && print "$$1\n"' > efuse
+	$(AVRDUDE) -c$(PROGID) -b$(PROGBAUD) -p$(MCU_TARGET) -P$(PROGPORT) -C$(AVRDUDECONF) -U lfuse:w:lfuse
+	$(AVRDUDE) -c$(PROGID) -b$(PROGBAUD) -p$(MCU_TARGET) -P$(PROGPORT) -C$(AVRDUDECONF) -U hfuse:w:hfuse
+	$(AVRDUDE) -c$(PROGID) -b$(PROGBAUD) -p$(MCU_TARGET) -P$(PROGPORT) -C$(AVRDUDECONF) -U efuse:w:efuse
+
 clean: clean-subdirs
-	rm -rf *.o *.elf *.lst *.map *.sym *.lss *.eep *.srec *.bin *.hex *.al *.i *.s *~ .depend
+	rm -rf *.o *.elf *.lst *.map *.sym *.lss *.eep *.srec *.bin *.hex *.al *.i *.s *~ *fuse
 
 clean-subdirs:
 	@for dir in $(SUBDIRS); do \
@@ -156,10 +148,8 @@ size: $(PROGRAM).elf
 	@$(OBJDUMP) -h $^ | perl -MPOSIX -ne '/.(eeprom)\s+([0-9a-f]+)/ && do { $$a += eval "0x$$2" }; END { printf "    EEPROM: %5d bytes          %3d%%      %3d%%       %3d%%      %3d%%\n", $$a, ceil($$a * 100 / (1 * 1024)), ceil($$a * 100 / (2 * 1024)), ceil($$a * 100 / (2 * 1024)), ceil($$a * 100 / (4 * 1024)) }'
 
 config.h: config.default.h
-	@echo "config.default.h is more recent than config.h. You likely want to"
-	@echo "review (edit) config.h to match new features in config.default.h."
+	@echo "Please review config.h, as config.default.h is more recent."
 	@echo "To view the differences, run: diff -bBEu config.h config.default.h"
-	@echo "If you just want to get rid of this message, run: touch config.h"
 	@false
 
 doc: Doxyfile *.c *.h
@@ -167,16 +157,6 @@ doc: Doxyfile *.c *.h
 
 functionsbysize: $(OBJ)
 	@avr-objdump -h $^ | grep '\.text\.' | perl -ne '/\.text\.(\S+)\s+([0-9a-f]+)/ && printf "%u\t%s\n", eval("0x$$2"), $$1;' | sort -n
-
-depend: .depend
-	@true
-
-.depend: $(SOURCES)
-	rm -f .depend
-	$(CC) $(CFLAGS) -MM $^ > .depend;
-
-# pull in dependency info
--include .depend
 
 %.o: %.c config.h Makefile
 	@echo "  CC        $@"
