@@ -183,7 +183,7 @@
 	internal pullup resistors
 		the ATmega has internal pullup resistors on it's input pins which are counterproductive with the commonly used eletronic endstops, so they should be switched off. For other endstops, like mechanical ones, you may want to uncomment this.
 */
-//#define USE_INTERNAL_PULLUPS
+#define USE_INTERNAL_PULLUPS
 
 /*
 	user defined pins
@@ -197,7 +197,7 @@
 //#define	X_MAX_PIN							xxxx
 //#define	X_ENABLE_PIN					xxxx
 //#define	X_INVERT_DIR
-//#define	X_INVERT_MIN
+#define	X_INVERT_MIN
 //#define	X_INVERT_MAX
 //#define	X_INVERT_ENABLE
 
@@ -207,7 +207,7 @@
 //#define	Y_MAX_PIN							xxxx
 //#define	Y_ENABLE_PIN					xxxx
 //#define	Y_INVERT_DIR
-//#define	Y_INVERT_MIN
+#define	Y_INVERT_MIN
 //#define	Y_INVERT_MAX
 //#define	Y_INVERT_ENABLE
 
@@ -217,7 +217,7 @@
 //#define	Z_MAX_PIN							xxxx
 //#define	Z_ENABLE_PIN					xxxx
 //#define	Z_INVERT_DIR
-//#define	Z_INVERT_MIN
+#define	Z_INVERT_MIN
 //#define	Z_INVERT_MAX
 //#define	Z_INVERT_ENABLE
 
