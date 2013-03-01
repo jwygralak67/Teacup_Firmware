@@ -81,16 +81,16 @@ class Thermistor:
 
 def main(argv):
 
-	r0 = 10000;
-	t0 = 25;
-	beta = 3947;
-	r1 = 680;
-	r2 = 1600;
-	num_temps = int(20);
+	r0 = 2100000;
+	t0 = 15;
+	beta = 4857;
+	r1 = 0;
+	r2 = 10000;
+	num_temps = int(200);
 	max_adc = int(1023);
 	min_adc = int(1);
-	vadc=5.0
-	vcc=5.0
+	vadc=4.92
+	vcc=4.92
 	mult=4
 	table=False
 
