@@ -78,15 +78,15 @@
 */
 
 /// used for G0 rapid moves and as a cap for all other feedrates
-#define	MAXIMUM_FEEDRATE_X		2000
-#define	MAXIMUM_FEEDRATE_Y		2000
-#define	MAXIMUM_FEEDRATE_Z		1000
-#define	MAXIMUM_FEEDRATE_E		200
+#define	MAXIMUM_FEEDRATE_X		4000
+#define	MAXIMUM_FEEDRATE_Y		4000
+#define	MAXIMUM_FEEDRATE_Z		175
+#define	MAXIMUM_FEEDRATE_E		4000
 
 /// used when searching endstops and as default feedrate
-#define	SEARCH_FEEDRATE_X			50
-#define	SEARCH_FEEDRATE_Y			50
-#define	SEARCH_FEEDRATE_Z			50
+#define	SEARCH_FEEDRATE_X			100
+#define	SEARCH_FEEDRATE_Y			100
+#define	SEARCH_FEEDRATE_Z			100
 // no SEARCH_FEEDRATE_E, as E can't be searched
 
 /** \def SLOW_HOMING
@@ -135,7 +135,7 @@
 	acceleration, reprap style.
 		Each movement starts at the speed of the previous command and accelerates or decelerates linearly to reach target speed at the end of the movement.
 */
-#define ACCELERATION_REPRAP
+//#define ACCELERATION_REPRAP
 
 /** \def ACCELERATION_RAMPING
 	acceleration and deceleration ramping.
