@@ -227,8 +227,8 @@
 //#define	E_INVERT_DIR
 //#define	E_INVERT_ENABLE
 
-//#define	PS_ON_PIN							DIO13
-#define	STEPPER_ENABLE_PIN		                                DIO13
+//#define	PS_ON_PIN						DIO13
+#define	STEPPER_ENABLE_PIN		                                DIO16
 #define	STEPPER_INVERT_ENABLE
 
 

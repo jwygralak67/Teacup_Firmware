@@ -111,6 +111,13 @@ pins
 #define DIO13_PWM		NULL
 
 
+#define DIO16_PIN		PINC2
+#define DIO16_RPORT	PINC
+#define DIO16_WPORT	PORTC
+#define DIO16_DDR		DDRC
+#define DIO16_PWM		NULL
+
+
 #define AIO0_PIN		PINC0
 #define AIO0_RPORT	PINC
 #define AIO0_WPORT	PORTC
