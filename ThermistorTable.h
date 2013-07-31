@@ -34,7 +34,7 @@
 
 // The number of value pairs in our table.
 // Must be the same for all tables.
-#define NUMTEMPS 102
+#define NUMTEMPS 104
 
 uint16_t const temptable[NUMTABLES][NUMTEMPS][2] PROGMEM = {
 
@@ -43,6 +43,7 @@ uint16_t const temptable[NUMTABLES][NUMTEMPS][2] PROGMEM = {
 // ./createTemperatureLookup.py --r0=2100000 --t0=15 --r1=0 --r2=10000 --beta=4857 --max-adc=1023 --min-adc=1 --multiplier=4 --vadc=4.92
 {
 // {ADC, temp*4 }, // temp         Rtherm     Vtherm      resolution   power
+   {   0,   9999}, //  Error, shorted thermistor
    {  41,   1239}, //  309.81 C,      417 Ohm, 0.197 V, 1.80 C/count, 0.09mW
    {  46,   1206}, //  301.52 C,      470 Ohm, 0.221 V, 1.57 C/count, 0.10mW
    {  51,   1176}, //  294.25 C,      524 Ohm, 0.245 V, 1.38 C/count, 0.11mW
@@ -145,6 +146,7 @@ uint16_t const temptable[NUMTABLES][NUMTEMPS][2] PROGMEM = {
    { 726,    474}, //  118.57 C,    24362 Ohm, 3.488 V, 0.15 C/count, 0.50mW
    {1011,    132}, //   33.04 C,   777692 Ohm, 4.858 V, 1.46 C/count, 0.03mW
    {1016,     95}, //   23.86 C,  1270000 Ohm, 4.882 V, 2.17 C/count, 0.02mW
+   {1024,      0}, //   Error, open thermistor
 },
 
 // Thermistor table for the Heatbed.
@@ -152,6 +154,7 @@ uint16_t const temptable[NUMTABLES][NUMTEMPS][2] PROGMEM = {
 
 // ./createTemperatureLookup.py --r0=100000 --t0=25 --r1=0 --r2=4580 --beta=4092 --max-adc=1023
 {
+   {0, 9999}, // Error, Shorted thermistor
    {1, 3318}, // 829.616016745 C
    {11, 1582}, // 395.653631407 C
    {21, 1323}, // 330.84097107 C
@@ -254,5 +257,6 @@ uint16_t const temptable[NUMTABLES][NUMTEMPS][2] PROGMEM = {
    {991, 72}, // 18.2330297294 C
    {1001, 42}, // 10.732298885 C
    {1010, 4} // 1.11618417895 C
+   {1024, 0} // Error, open Thermistor
 }
 };
